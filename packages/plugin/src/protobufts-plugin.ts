@@ -302,6 +302,8 @@ export class ProtobuftsPlugin extends PluginBase {
                 }
                 if (EnumDescriptorProto.is(descriptor)) {
                     genEnum.generateEnum(outMain, descriptor);
+                    // Add our custom translation enum
+                    genEnum.generateTranslationTable(outMain, descriptor);
                 }
             });
 

@@ -56,6 +56,13 @@ export class CommentGenerator {
         // start with leading block
         let leading = this.getCommentBlock(descriptor, trailingCommentsMode === "appendToLeadingBlock");
 
+         // Check and handle @DatabaseDoc
+         if (this.hasDatabaseDocAnnotation(descriptor)) {
+            // Add additional comment or logic related to @DatabaseDoc
+            const dbDocComment = "\n * @DatabaseDoc: This message is a database document with standard fields (id, createdOn, updatedOn, version).";
+            // Add this as a part of the leading comment or as a separate comment block
+            leading = leading + dbDocComment
+        }
         // add leading block as jsdoc comment block
         addCommentBlockAsJsDoc(node, leading);
 
@@ -66,7 +73,20 @@ export class CommentGenerator {
                 ts.addSyntheticTrailingComment(node, ts.SyntaxKind.SingleLineCommentTrivia, line, true);
             }
         }
+
+       
     }
+
+    // Utility method to check for @DatabaseDoc annotations
+    hasDatabaseDocAnnotation(descriptor: AnyDescriptorProto): boolean {
+        // Get the source code comments associated with the descriptor
+        const sourceInfo = this.registry.sourceCodeComments(descriptor);
+    
+        // Check the leading comments for the @DatabaseDoc annotation
+        const hasAnnotation = sourceInfo.leading?.includes("@DatabaseDoc") ?? false;
+        return hasAnnotation;
+    }
+    
 
     /**
      * Returns a block of source comments (no leading detached!),

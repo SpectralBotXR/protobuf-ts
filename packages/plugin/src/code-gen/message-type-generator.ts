@@ -145,6 +145,11 @@ export class MessageTypeGenerator extends GeneratorBase {
             )
         );
 
+        // Check for @DatabaseDoc annotation and add IDatabaseDoc properties if present
+        if (this.comments.hasDatabaseDocAnnotation(descriptor)) {
+            this.extendWithDatabaseDoc(source, descriptor);
+        }
+
 
         // add to our file
         source.addStatement(classDec);
@@ -162,6 +167,39 @@ export class MessageTypeGenerator extends GeneratorBase {
         return;
     }
 
+    // Extend the generated type with IDatabaseDoc fields
+    private extendWithDatabaseDoc(source: TypescriptFile, descriptor: DescriptorProto): void {
+        const messageName = this.imports.type(source, descriptor); // e.g., "MyMessage"
+        const databaseDocInterfaceName = ts.createIdentifier(messageName + "Doc"); // e.g., "MyMessageDoc"
 
+        // Ensure IDatabaseDoc is imported from "common.ts"
+        this.ensureIDatabaseDocImported(source);
+
+        const typeAliasDeclaration = ts.createTypeAliasDeclaration(
+            undefined, // decorators
+            [ts.createModifier(ts.SyntaxKind.ExportKeyword)], // modifiers like 'export'
+            databaseDocInterfaceName, // name of the type alias
+            undefined, // type parameters
+            ts.createIntersectionTypeNode([ // type
+                ts.createTypeReferenceNode("DatabaseDoc", undefined),
+                ts.createTypeReferenceNode(messageName, undefined)
+            ])
+        );
+        
+        source.addStatement(typeAliasDeclaration);
+
+    }
+
+    /**
+     * Ensures that IDatabaseDoc is imported from the specified common file if it exists.
+     * This method should be called when generating message types that extend IDatabaseDoc.
+     */
+    ensureIDatabaseDocImported(source: TypescriptFile, commonFilePath = "./common"): void {
+        const idatabaseDocName = "DatabaseDoc"; // adjust this if the actual exported name is different
+
+        // Use the name method to ensure the import is added if it doesn't exist
+        // The name method automatically checks for existing imports and handles naming conflicts
+        this.imports.name(source, idatabaseDocName, commonFilePath, true); // true for isTypeOnly if needed
+    }
 
 }

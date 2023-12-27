@@ -90,6 +90,14 @@ export class TypeScriptImports {
         );
     }
 
+    /**
+     * Checks if the given source already contains an import for the specified name from the specified location.
+     */
+    hasImport(source: TypescriptFile, importName: string, importFrom: string): boolean {
+        const currentFile = source.getSourceFile();
+        const allNamedImports = findNamedImports(currentFile);
+        return allNamedImports.some(ni => ni.name === importName && ni.from === importFrom);
+    }
 
 }
 

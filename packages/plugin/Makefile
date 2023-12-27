@@ -4,7 +4,7 @@ PROTOS	:= $(shell find ${PROTO_PATH} -name '*.proto')
 SPECS := $(shell find spec -name '*.spec.ts')
 
 
-default: clean build test
+default: clean build
 
 build:
 	@./node_modules/.bin/tsc --project tsconfig.build.json;

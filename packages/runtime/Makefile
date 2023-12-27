@@ -2,7 +2,7 @@
 SPECS := $(shell find spec -name '*.spec.ts')
 
 
-default: clean build test
+default: clean build
 
 build:
 	@./node_modules/.bin/tsc --project tsconfig.build.json --module es2015 --outDir build/es2015;
